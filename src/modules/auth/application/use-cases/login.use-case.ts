@@ -20,7 +20,7 @@ export class LoginUseCase {
     constructor(private readonly authUserRepository: AuthUserRepository) {}
 
     async execute(input: LoginInput): Promise<AuthSessionPayload> {
-        const { email, password } = input;
+        const { email } = input;
 
         const normalizedEmail = email.trim().toLowerCase();
         const user = await this.authUserRepository.findByEmail(normalizedEmail);
