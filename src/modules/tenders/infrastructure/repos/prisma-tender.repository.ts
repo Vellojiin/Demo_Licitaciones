@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/src/infrastructure/prisma/prisma";
 import { Tender } from "@/src/modules/tenders/domain/entities/tender.entity";
+import { TenderProduct } from "@/src/modules/tenders/domain/entities/tender-product.entity";
 import { TenderRepository } from "@/src/modules/tenders/domain/repos/tender.repository";
 
 export class PrismaTenderRepository implements TenderRepository {
@@ -54,5 +55,93 @@ export class PrismaTenderRepository implements TenderRepository {
             ...tender,
             maxBudget: Number(tender.maxBudget),
         };
+    }
+
+    async addProduct(
+        tenderId: string,
+        productId: string,
+        quantity: number,
+        unitPrice: number
+    ): Promise<TenderProduct> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if (!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        const product = await prisma.product.findUnique({
+            where: { id: productId },
+        });
+
+        if (!product) {
+            throw new Error("PRODUCT_NOT_FOUND");
+        }
+
+        const existingProduct = await prisma.tenderProduct.findUnique({
+            where: {
+                tenderId_productId: {
+                    tenderId,
+                    productId,
+                },
+            },
+        });
+
+        if (existingProduct) {
+            const updated = await prisma.tenderProduct.update({
+                where: {
+                    tenderId_productId: {
+                        tenderId,
+                        productId,
+                    },
+                },
+                data: {
+                    quantity,
+                    unitPrice: new Prisma.Decimal(unitPrice),
+                },
+            });
+
+            return {
+                id: updated.id,
+                tenderId: updated.tenderId,
+                productId: updated.productId,
+                quantity: updated.quantity,
+                unitPrice: Number(updated.unitPrice),
+            };
+        }
+
+        const created = await prisma.tenderProduct.create({
+            data: {
+                tenderId,
+                productId,
+                quantity,
+                unitPrice: new Prisma.Decimal(unitPrice),
+            },
+        });
+
+        return {
+            id: created.id,
+            tenderId: created.tenderId,
+            productId: created.productId,
+            quantity: created.quantity,
+            unitPrice: Number(created.unitPrice),
+        };
+    }
+
+    async removeProduct(tenderId: string, productId: string): Promise<void> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if (!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+        await prisma.tenderProduct.deleteMany({
+            where: {
+                    tenderId,
+                    productId,
+            },
+        });
     }
 }
