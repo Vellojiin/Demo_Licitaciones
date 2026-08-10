@@ -137,10 +137,53 @@ export class PrismaTenderRepository implements TenderRepository {
         if (!tender) {
             throw new Error("TENDER_NOT_FOUND");
         }
+
         await prisma.tenderProduct.deleteMany({
             where: {
-                    tenderId,
-                    productId,
+                tenderId,
+                productId,
+            },
+        });
+    }
+
+    async findProductsByTenderId(tenderId: string): Promise<TenderProduct[]> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if (!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        const tenderProducts = await prisma.tenderProduct.findMany({
+            where: { tenderId },
+            orderBy: {
+                productId: "asc",
+            },
+        });
+
+        return tenderProducts.map((item) => ({
+            id: item.id,
+            tenderId: item.tenderId,
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: Number(item.unitPrice),
+        }));
+    }
+
+    async send(tenderId: string): Promise<void> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if (!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        await prisma.tender.update({
+            where: { id: tenderId },
+            data: {
+                status: "ACTIVA",
             },
         });
     }

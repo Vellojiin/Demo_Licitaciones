@@ -14,4 +14,6 @@ export interface TenderRepository {
     ): Promise<TenderProduct>;
 
     removeProduct(tenderId: string, productId: string): Promise<void>;
+    findProductsByTenderId(tenderId: string): Promise<TenderProduct[]>;
+    send(tenderId: string): Promise<void>;
 }

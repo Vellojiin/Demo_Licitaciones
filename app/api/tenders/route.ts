@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAuth } from "@/src/modules/auth/infrastructure/http/require-auth";
-import { ListTenderUseCase } from "@/src/modules/tenders/application/list-tender.use-case";
+import { ListTenderUseCase } from "@/src/modules/tenders/application/use-cases/list-tender.use-case";
 import { CreateTenderUseCase } from "@/src/modules/tenders/application/use-cases/create-tender.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
