@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import type { AuthSessionPayload } from "./application/use-cases/login.use-case";
+import type { AuthSessionPayload } from "@/src/modules/auth/application/use-cases/login.use-case";
 
 const parsedTokenTtlHours = Number(process.env.JWT_EXPIRES_IN_HOURS);
 const TOKEN_TTL_HOURS = Number.isFinite(parsedTokenTtlHours) && parsedTokenTtlHours > 0

@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-import { AuthUserRepository } from "../../domain/repos/auth-user.repository";
+import { AuthUserRepository } from "@/src/modules/auth/domain/repos/auth-user.repository";
 import { InvalidCredentialError } from "@/src/modules/auth/domain/errors/invalid-credential.error";
 import { UserRole } from "@/src/modules/auth/domain/entities/auth-user.entity";
 

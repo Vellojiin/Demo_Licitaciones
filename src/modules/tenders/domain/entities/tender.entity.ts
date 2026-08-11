@@ -14,3 +14,20 @@ export interface Tender {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface TenderActivationProduct {
+    name: string;
+    quantity: number;
+    unitPrice: number;
+}
+
+export interface TenderActivationClient {
+    companyName: string;
+    email: string;
+}
+
+export interface TenderActivationEmailData {
+    tender: Tender;
+    client: TenderActivationClient;
+    products: TenderActivationProduct[];
+}

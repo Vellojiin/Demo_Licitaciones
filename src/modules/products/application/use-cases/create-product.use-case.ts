@@ -1,5 +1,5 @@
-import { Product } from "../../domain/entities/product.entity";
-import { ProductRepository } from "../../domain/repos/product.repository";
+import { Product } from "@/src/modules/products/domain/entities/product.entity";
+import { ProductRepository } from "@/src/modules/products/domain/repos/product.repository";
 
 interface CreateProductInput{
     name: string;
