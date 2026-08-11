@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/src/infrastructure/prisma/prisma";
-import { Tender, TenderStatus } from "@/src/modules/tenders/domain/entities/tender.entity";
+import { Tender, TenderStatus, TenderActivationEmailData } from "@/src/modules/tenders/domain/entities/tender.entity";
 import { TenderProduct } from "@/src/modules/tenders/domain/entities/tender-product.entity";
 import { Payment } from "@/src/modules/tenders/domain/entities/payment.entity";
 import { TenderRepository } from "@/src/modules/tenders/domain/repos/tender.repository";
@@ -105,6 +105,50 @@ export class PrismaTenderRepository implements TenderRepository {
         return {
             ...tender,
             maxBudget: Number(tender.maxBudget),
+        };
+    }
+
+    async findActivationEmailData(tenderId: string): Promise<TenderActivationEmailData | null> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+            include: {
+                client: true,
+                products: {
+                    include: {
+                        product: true,
+                    },
+                },
+            },
+        });
+
+        if (!tender) {
+            return null;
+        }
+
+        return {
+            tender: {
+                id: tender.id,
+                title: tender.title,
+                description: tender.description,
+                status: tender.status,
+                maxBudget: Number(tender.maxBudget),
+                deadline: tender.deadline,
+                proposalDocumentUrl: tender.proposalDocumentUrl,
+                clientId: tender.clientId,
+                createdById: tender.createdById,
+                updatedById: tender.updatedById,
+                createdAt: tender.createdAt,
+                updatedAt: tender.updatedAt,
+            },
+            client: {
+                companyName: tender.client.companyName,
+                email: tender.client.email,
+            },
+            products: tender.products.map((item) => ({
+                name: item.product.name,
+                quantity: item.quantity,
+                unitPrice: Number(item.unitPrice),
+            })),
         };
     }
 
