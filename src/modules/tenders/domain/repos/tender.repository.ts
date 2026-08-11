@@ -1,4 +1,5 @@
 import { Tender } from "@/src/modules/tenders/domain/entities/tender.entity";
+import { Payment } from "@/src/modules/tenders/domain/entities/payment.entity";
 import { TenderProduct } from "@/src/modules/tenders/domain/entities/tender-product.entity";
 
 export interface TenderRepository {
@@ -16,4 +17,10 @@ export interface TenderRepository {
     removeProduct(tenderId: string, productId: string): Promise<void>;
     findProductsByTenderId(tenderId: string): Promise<TenderProduct[]>;
     send(tenderId: string): Promise<void>;
+
+    registerPayment(payment: Payment): Promise<Payment>;
+    findPaymentsByTenderId(tenderId: string): Promise<Payment[]>;
+
+    finish(tenderId: string): Promise<void>;
+    lose(tenderId: string): Promise<void>;
 }

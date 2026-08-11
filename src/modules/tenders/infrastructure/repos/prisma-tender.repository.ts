@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/src/infrastructure/prisma/prisma";
 import { Tender } from "@/src/modules/tenders/domain/entities/tender.entity";
 import { TenderProduct } from "@/src/modules/tenders/domain/entities/tender-product.entity";
+import { Payment } from "@/src/modules/tenders/domain/entities/payment.entity";
 import { TenderRepository } from "@/src/modules/tenders/domain/repos/tender.repository";
 
 export class PrismaTenderRepository implements TenderRepository {
@@ -185,6 +186,92 @@ export class PrismaTenderRepository implements TenderRepository {
             data: {
                 status: "ACTIVA",
             },
+        });
+    }
+
+    async registerPayment(payment: Payment): Promise<Payment> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: payment.tenderId },
+        });
+
+        if(!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        const createdPayment = await prisma.payment.create({
+            data: {
+                id: payment.id,
+                tenderId: payment.tenderId,
+                createdById: payment.createdById,
+                amount: new Prisma.Decimal(payment.amount),
+                paidAt: payment.paidAt,
+                observation: payment.observation,
+            },
+        });
+
+        return {
+            id: createdPayment.id,
+            tenderId: createdPayment.tenderId,
+            createdById: createdPayment.createdById,
+            amount: Number(createdPayment.amount),
+            paidAt: createdPayment.paidAt,
+            observation: createdPayment.observation,
+        }
+    }
+
+    async findPaymentsByTenderId(tenderId: string): Promise<Payment[]> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if (!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        const payments = await prisma.payment.findMany({
+            where: { tenderId },
+            orderBy: {
+                paidAt: "desc",
+            },
+        });
+
+        return payments.map((payment) => ({
+            id: payment.id,
+            tenderId: payment.tenderId,
+            createdById: payment.createdById,
+            amount: Number(payment.amount),
+            paidAt: payment.paidAt,
+            observation: payment.observation,
+        }));
+    }
+
+    async finish(tenderId: string): Promise<void> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if(!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        await prisma.tender.update({
+            where: { id: tenderId },
+            data: { status: "FINALIZADA" },
+        });
+    }
+
+    async lose(tenderId: string): Promise<void> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if(!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        await prisma.tender.update({
+            where: { id: tenderId },
+            data: { status: "PERDIDA" },
         });
     }
 }
