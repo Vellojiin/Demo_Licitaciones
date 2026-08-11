@@ -5,6 +5,8 @@ import { InvalidCredentialError } from "@/src/modules/auth/domain/errors/invalid
 import { PrismaAuthUserRepository } from "@/src/modules/auth/infrastructure/prisma-auth-user.repository";
 import { signAuthToken } from "@/src/modules/auth/jwt";
 
+export const dynamic = "force-dynamic";
+
 const loginSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),

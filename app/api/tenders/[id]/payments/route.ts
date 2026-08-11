@@ -6,12 +6,14 @@ import { RegisterPaymentUseCase } from "@/src/modules/tenders/application/use-ca
 import { ListPaymentUseCase } from "@/src/modules/tenders/application/use-cases/list-payment.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
+export const dynamic = "force-dynamic";
+
 const registerPaymentSchema = z.object({
     amount: z.coerce.number().positive("Amount must be a positive number"),
     observation: z.string().trim().optional()
 });
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await requireAuth();
         const { id } = await params;
@@ -52,7 +54,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         await requireAuth();
         const { id } = await params;

@@ -7,6 +7,8 @@ import { RemoveProductUseCase } from "@/src/modules/tenders/application/use-case
 import { ListTenderProductsUseCase } from "@/src/modules/tenders/application/use-cases/list-tender-products.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
+export const dynamic = "force-dynamic";
+
 const addProductSchema = z.object({
   productId: z.string().trim().min(1, "productId is required"),
   quantity: z.coerce.number().int().positive("quantity must be positive"),
@@ -14,7 +16,7 @@ const addProductSchema = z.object({
 });
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

@@ -31,4 +31,59 @@ export class PrismaProductRepository implements ProductRepository {
             basePrice: product.basePrice.toNumber(),
         }));
     }
+
+    async findById(id: string): Promise<Product | null> {
+        const product = await prisma.product.findUnique({
+            where: { id },
+        });
+
+        if (!product) {
+            return null;
+        }
+
+        return {
+            ...product,
+            basePrice: product.basePrice.toNumber(),
+        };
+    }
+
+    async update(
+        id: string,
+        input: Partial<Pick<Product, "name" | "description" | "basePrice" | "updatedById" | "updatedAt">>
+    ): Promise<Product | null> {
+        const existingProduct = await prisma.product.findUnique({
+            where: { id },
+        });
+
+        if (!existingProduct) {
+            return null;
+        }
+
+        const updated = await prisma.product.update({
+            where: { id },
+            data: {
+                name: input.name,
+                description: input.description,
+                basePrice:
+                    typeof input.basePrice === "number"
+                        ? new Prisma.Decimal(input.basePrice)
+                        : undefined,
+                updatedById: input.updatedById,
+                updatedAt: input.updatedAt,
+            },
+        });
+
+        return {
+            ...updated,
+            basePrice: updated.basePrice.toNumber(),
+        };
+    }
+
+    async delete(id: string): Promise<boolean> {
+        const deleted = await prisma.product.deleteMany({
+            where: { id },
+        });
+
+        return deleted.count > 0;
+    }
 }

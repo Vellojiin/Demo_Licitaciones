@@ -4,7 +4,9 @@ import { requireAuth } from "@/src/modules/auth/infrastructure/http/require-auth
 import { LoseTenderUseCase } from "@/src/modules/tenders/application/use-cases/lose-tender.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export const dynamic = "force-dynamic";
+
+export async function PATCH(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAuth();
     const { id } = await params;

@@ -6,4 +6,6 @@ export interface ClientRepository {
     findAll(): Promise<Client[]>
 
     findById(id: string): Promise<Client | null>
+    update(id: string, input: Partial<Pick<Client, "companyName" | "contactName" | "email" | "updatedById" | "updatedAt">>): Promise<Client | null>
+    delete(id: string): Promise<boolean>
 }

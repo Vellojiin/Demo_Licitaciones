@@ -35,4 +35,36 @@ export class PrismaClientRepository implements ClientRepository {
             }
         })
     }
+
+    async update(
+        id: string,
+        input: Partial<Pick<Client, "companyName" | "contactName" | "email" | "updatedById" | "updatedAt">>
+    ): Promise<Client | null> {
+        const existingClient = await prisma.client.findUnique({
+            where: { id },
+        });
+
+        if (!existingClient) {
+            return null;
+        }
+
+        return prisma.client.update({
+            where: { id },
+            data: {
+                companyName: input.companyName,
+                contactName: input.contactName,
+                email: input.email,
+                updatedById: input.updatedById,
+                updatedAt: input.updatedAt,
+            },
+        });
+    }
+
+    async delete(id: string): Promise<boolean> {
+        const deleted = await prisma.client.deleteMany({
+            where: { id },
+        });
+
+        return deleted.count > 0;
+    }
 }
