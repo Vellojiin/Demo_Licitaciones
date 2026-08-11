@@ -206,6 +206,33 @@ export class PrismaTenderRepository implements TenderRepository {
         });
     }
 
+    async updateProposalDocumentUrl(
+        tenderId: string,
+        proposalDocumentUrl: string,
+        userId: string
+    ): Promise<Tender | null> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+        });
+
+        if (!tender) {
+            return null;
+        }
+
+        const updatedTender = await prisma.tender.update({
+            where: { id: tenderId },
+            data: {
+                proposalDocumentUrl,
+                updatedById: userId,
+            },
+        });
+
+        return {
+            ...updatedTender,
+            maxBudget: Number(updatedTender.maxBudget),
+        };
+    }
+
     async removeProduct(tenderId: string, productId: string): Promise<void> {
         const tender = await prisma.tender.findUnique({
             where: { id: tenderId },
