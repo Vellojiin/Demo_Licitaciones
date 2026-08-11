@@ -134,6 +134,7 @@ export class PrismaTenderRepository implements TenderRepository {
                 maxBudget: Number(tender.maxBudget),
                 deadline: tender.deadline,
                 proposalDocumentUrl: tender.proposalDocumentUrl,
+                reminderSentAt: tender.reminderSentAt,
                 clientId: tender.clientId,
                 createdById: tender.createdById,
                 updatedById: tender.updatedById,
@@ -150,6 +151,51 @@ export class PrismaTenderRepository implements TenderRepository {
                 unitPrice: Number(item.unitPrice),
             })),
         };
+    }
+
+    async findOverdueActiveTenderIds(referenceDate: Date): Promise<string[]> {
+        const tenders = await prisma.tender.findMany({
+            where: {
+                status: "ACTIVA",
+                deadline: {
+                    lt: referenceDate,
+                },
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        return tenders.map((tender) => tender.id);
+    }
+
+    async findUpcomingReminderTenderIds(referenceDate: Date, reminderWindowHours: number): Promise<string[]> {
+        const reminderDeadline = new Date(referenceDate.getTime() + reminderWindowHours * 60 * 60 * 1000);
+        const tenders = await prisma.tender.findMany({
+            where: {
+                status: "ACTIVA",
+                deadline: {
+                    gte: referenceDate,
+                    lt: reminderDeadline,
+                },
+                reminderSentAt: null,
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        return tenders.map((tender) => tender.id);
+    }
+
+    async markReminderSent(tenderId: string, reminderSentAt: Date, userId: string): Promise<void> {
+        await prisma.tender.update({
+            where: { id: tenderId },
+            data: {
+                reminderSentAt,
+                updatedById: userId,
+            },
+        });
     }
 
     async addProduct(

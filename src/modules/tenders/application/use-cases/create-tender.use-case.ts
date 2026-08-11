@@ -22,6 +22,7 @@ export class CreateTenderUseCase{
             maxBudget: input.maxBudget,
             deadline: input.deadline,
             proposalDocumentUrl: null,
+            reminderSentAt: null,
             clientId: input.clientId,
             createdById: input.userId,
             updatedById: input.userId,

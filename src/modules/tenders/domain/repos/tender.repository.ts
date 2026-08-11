@@ -7,6 +7,9 @@ export interface TenderRepository {
     findAll(): Promise<Tender[]>;
     findById(id: string): Promise<Tender | null>;
     findActivationEmailData(tenderId: string): Promise<TenderActivationEmailData | null>;
+    findOverdueActiveTenderIds(referenceDate: Date): Promise<string[]>;
+    findUpcomingReminderTenderIds(referenceDate: Date, reminderWindowHours: number): Promise<string[]>;
+    markReminderSent(tenderId: string, reminderSentAt: Date, userId: string): Promise<void>;
 
     addProduct(
         tenderId: string,

@@ -54,6 +54,7 @@ CREATE TABLE "Tender" (
     "maxBudget" DECIMAL(12,2) NOT NULL,
     "deadline" TIMESTAMP(3) NOT NULL,
     "proposalDocumentUrl" TEXT,
+    "reminderSentAt" TIMESTAMP(3),
     "clientId" TEXT NOT NULL,
     "createdById" TEXT NOT NULL,
     "updatedById" TEXT NOT NULL,
