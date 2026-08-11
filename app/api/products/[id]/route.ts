@@ -6,8 +6,6 @@ import { DeleteProductUseCase } from "@/src/modules/products/application/use-cas
 import { UpdateProductUseCase } from "@/src/modules/products/application/use-cases/update-product.use-case";
 import { PrismaProductRepository } from "@/src/modules/products/infrastructure/repos/prisma-product.repository";
 
-export const dynamic = "force-dynamic";
-
 const updateProductSchema = z.object({
     name: z.string().trim().min(1, "Name is required").optional(),
     description: z.string().trim().optional().nullable(),

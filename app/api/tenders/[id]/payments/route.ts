@@ -6,8 +6,6 @@ import { RegisterPaymentUseCase } from "@/src/modules/tenders/application/use-ca
 import { ListPaymentUseCase } from "@/src/modules/tenders/application/use-cases/list-payment.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
-export const dynamic = "force-dynamic";
-
 const registerPaymentSchema = z.object({
     amount: z.coerce.number().positive("Amount must be a positive number"),
     observation: z.string().trim().optional()
@@ -48,6 +46,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
         if (error instanceof Error && error.message === "TENDER_NOT_FOUND") {
             return NextResponse.json({ message: "Tender not found" }, { status: 404 });
+        }
+
+        if (error instanceof Error && error.message === "INVALID_PAYMENT_STATUS") {
+            return NextResponse.json({ message: "Payments are only allowed when tender status is POR_COBRAR" }, { status: 409 });
+        }
+
+        if (error instanceof Error && error.message === "PAYMENT_EXCEEDS_PENDING_BALANCE") {
+            return NextResponse.json({ message: "Payment amount exceeds pending balance" }, { status: 422 });
         }
 
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });

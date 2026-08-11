@@ -16,11 +16,12 @@ export interface TenderRepository {
 
     removeProduct(tenderId: string, productId: string): Promise<void>;
     findProductsByTenderId(tenderId: string): Promise<TenderProduct[]>;
-    send(tenderId: string): Promise<void>;
+    send(tenderId: string, userId: string): Promise<void>;
 
     registerPayment(payment: Payment): Promise<Payment>;
     findPaymentsByTenderId(tenderId: string): Promise<Payment[]>;
 
-    finish(tenderId: string): Promise<void>;
-    lose(tenderId: string): Promise<void>;
+    finish(tenderId: string, userId: string): Promise<void>;
+    markAsPorCobrar(tenderId: string, userId: string): Promise<void>;
+    lose(tenderId: string, userId: string): Promise<void>;
 }

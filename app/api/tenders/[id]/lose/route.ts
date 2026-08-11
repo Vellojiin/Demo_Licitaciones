@@ -4,16 +4,14 @@ import { requireAuth } from "@/src/modules/auth/infrastructure/http/require-auth
 import { LoseTenderUseCase } from "@/src/modules/tenders/application/use-cases/lose-tender.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
-export const dynamic = "force-dynamic";
-
 export async function PATCH(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAuth();
+    const session = await requireAuth();
     const { id } = await params;
 
     const repository = new PrismaTenderRepository();
     const useCase = new LoseTenderUseCase(repository);
-    await useCase.execute({ tenderId: id });
+    await useCase.execute({ tenderId: id, userId: session.userId });
 
     return NextResponse.json({ message: "Tender lost" }, { status: 200 });
   } catch (error) {
@@ -23,6 +21,10 @@ export async function PATCH(_request: Request, { params }: { params: Promise<{ i
 
     if (error instanceof Error && error.message === "TENDER_NOT_FOUND") {
       return NextResponse.json({ message: "Tender not found" }, { status: 404 });
+    }
+
+    if (error instanceof Error && error.message === "INVALID_TENDER_STATUS_TRANSITION") {
+      return NextResponse.json({ message: "Invalid tender status transition" }, { status: 409 });
     }
 
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

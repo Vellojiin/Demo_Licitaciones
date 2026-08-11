@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { requireAuth } from "@/src/modules/auth/infrastructure/http/require-auth";
-import { FinishTenderUseCase } from "@/src/modules/tenders/application/use-cases/finish-tender.use-case";
+import { MarkTenderAsPorCobrarUseCase } from "@/src/modules/tenders/application/use-cases/mark-tender-as-por-cobrar.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
 export async function PATCH(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -10,10 +10,10 @@ export async function PATCH(_request: Request, { params }: { params: Promise<{ i
         const { id } = await params;
 
         const repository = new PrismaTenderRepository();
-        const useCase = new FinishTenderUseCase(repository);
+        const useCase = new MarkTenderAsPorCobrarUseCase(repository);
         await useCase.execute({ tenderId: id, userId: session.userId });
 
-        return NextResponse.json({ message: "Tender finished successfully" }, { status: 200 });
+        return NextResponse.json({ message: "Tender moved to por_cobrar successfully" }, { status: 200 });
     } catch (error) {
         if (error instanceof Error && error.message === "UNAUTHORIZED") {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -27,6 +27,6 @@ export async function PATCH(_request: Request, { params }: { params: Promise<{ i
             return NextResponse.json({ message: "Invalid tender status transition" }, { status: 409 });
         }
 
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }

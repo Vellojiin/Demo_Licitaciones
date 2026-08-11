@@ -5,8 +5,6 @@ import { requireAuth } from "@/src/modules/auth/infrastructure/http/require-auth
 import { CreateClientUseCase } from "@/src/modules/clients/application/use-cases/create-client.use-case";
 import { PrismaClientRepository } from "@/src/modules/clients/infrastructure/repos/prisma-client.repository";
 
-export const dynamic = "force-dynamic";
-
 const createClientSchema = z.object({
   companyName: z.string().trim().min(1, "companyName is required"),
   contactName: z.string().trim().optional(),

@@ -5,8 +5,6 @@ import { PrismaProductRepository } from "@/src/modules/products/infrastructure/r
 import { CreateProductUseCase } from "@/src/modules/products/application/use-cases/create-product.use-case";
 import { ListProductUseCase } from "@/src/modules/products/application/use-cases/list-product.use-case";
 
-export const dynamic = "force-dynamic";
-
 const createdProductSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   description: z.string().trim().optional(),

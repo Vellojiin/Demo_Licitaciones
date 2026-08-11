@@ -7,8 +7,6 @@ import { RemoveProductUseCase } from "@/src/modules/tenders/application/use-case
 import { ListTenderProductsUseCase } from "@/src/modules/tenders/application/use-cases/list-tender-products.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
-export const dynamic = "force-dynamic";
-
 const addProductSchema = z.object({
   productId: z.string().trim().min(1, "productId is required"),
   quantity: z.coerce.number().int().positive("quantity must be positive"),
@@ -82,6 +80,17 @@ export async function POST(
       return NextResponse.json({ message: "Product not found" }, { status: 404 });
     }
 
+    if (error instanceof Error && error.message === "TENDER_PRODUCTS_NOT_EDITABLE") {
+      return NextResponse.json(
+        { message: "Products cannot be changed when tender status is finalizada, por_cobrar, cobrada or perdida" },
+        { status: 409 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "TENDER_MAX_BUDGET_EXCEEDED") {
+      return NextResponse.json({ message: "Tender max budget exceeded" }, { status: 422 });
+    }
+
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -116,6 +125,13 @@ export async function DELETE(
 
     if (error instanceof Error && error.message === "TENDER_NOT_FOUND") {
       return NextResponse.json({ message: "Tender not found" }, { status: 404 });
+    }
+
+    if (error instanceof Error && error.message === "TENDER_PRODUCTS_NOT_EDITABLE") {
+      return NextResponse.json(
+        { message: "Products cannot be changed when tender status is finalizada, por_cobrar, cobrada or perdida" },
+        { status: 409 }
+      );
     }
 
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });

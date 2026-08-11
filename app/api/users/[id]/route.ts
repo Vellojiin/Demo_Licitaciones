@@ -6,8 +6,6 @@ import { DeleteUserUseCase } from "@/src/modules/users/application/use-cases/del
 import { UpdateUserUseCase } from "@/src/modules/users/application/use-cases/update-user.use-case";
 import { PrismaUserRepository } from "@/src/modules/users/infrastructure/repos/prisma-user.repository";
 
-export const dynamic = "force-dynamic";
-
 const updateUserSchema = z
     .object({
         name: z.string().trim().min(2, "Name is required").optional(),

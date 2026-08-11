@@ -6,8 +6,6 @@ import { ListTenderUseCase } from "@/src/modules/tenders/application/use-cases/l
 import { CreateTenderUseCase } from "@/src/modules/tenders/application/use-cases/create-tender.use-case";
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
-export const dynamic = "force-dynamic";
-
 const createTenderSchema = z.object({
     title: z.string().trim().min(1, "Title is required"),
     description: z.string().trim().optional(),
