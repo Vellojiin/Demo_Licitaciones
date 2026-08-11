@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { verifyAuthToken } from "../../jwt";
+import { verifyAuthToken } from "@/src/modules/auth/jwt";
 
 export async function requireAuth() {
     const token = (await cookies()).get("access_token")?.value;

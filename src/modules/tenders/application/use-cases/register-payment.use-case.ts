@@ -1,5 +1,5 @@
-import { Payment } from "../../domain/entities/payment.entity";
-import { TenderRepository } from "../../domain/repos/tender.repository";
+import { Payment } from "@/src/modules/tenders/domain/entities/payment.entity";
+import { TenderRepository } from "@/src/modules/tenders/domain/repos/tender.repository";
 
 export class RegisterPaymentUseCase {
     constructor(private readonly tenderRepository: TenderRepository) {}

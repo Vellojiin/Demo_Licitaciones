@@ -1,6 +1,6 @@
 import { Prisma} from "@prisma/client";
-import { Product } from "../../domain/entities/product.entity";
-import { ProductRepository } from "../../domain/repos/product.repository";
+import { Product } from "@/src/modules/products/domain/entities/product.entity";
+import { ProductRepository } from "@/src/modules/products/domain/repos/product.repository";
 import { prisma } from "@/src/infrastructure/prisma/prisma";
 
 export class PrismaProductRepository implements ProductRepository {

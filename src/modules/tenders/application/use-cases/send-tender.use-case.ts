@@ -1,4 +1,4 @@
-import { TenderRepository } from "../../domain/repos/tender.repository";
+import { TenderRepository } from "@/src/modules/tenders/domain/repos/tender.repository";
 import { sendTenderActivationEmail } from "@/src/infrastructure/resend/resend";
 
 interface SendTenderInput {

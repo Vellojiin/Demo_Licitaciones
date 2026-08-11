@@ -1,4 +1,4 @@
-import { ProductRepository } from "../../domain/repos/product.repository";
+import { ProductRepository } from "@/src/modules/products/domain/repos/product.repository";
 
 interface DeleteProductInput {
     id: string;

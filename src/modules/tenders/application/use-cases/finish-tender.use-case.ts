@@ -1,4 +1,4 @@
-import { TenderRepository } from "../../domain/repos/tender.repository";
+import { TenderRepository } from "@/src/modules/tenders/domain/repos/tender.repository";
 
 interface FinishTenderInput {
     tenderId: string;
