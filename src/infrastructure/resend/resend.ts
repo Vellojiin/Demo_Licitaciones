@@ -20,9 +20,9 @@ function getFromAddress(): string {
 }
 
 function formatMoney(value: number): string {
-    return new Intl.NumberFormat("es-CO", {
+    return new Intl.NumberFormat("es-PA", {
         style: "currency",
-        currency: "COP",
+        currency: "USD",
         maximumFractionDigits: 0,
     }).format(value);
 }
@@ -59,7 +59,7 @@ export async function sendTenderActivationEmail(data: TenderActivationEmailData)
 
     await getResendClient().emails.send({
         from: getFromAddress(),
-        to: data.client.email,
+        to: "delivered@resend.dev", //data.client.email,
         subject: `Licitación activada: ${data.tender.title}`,
         html: `
             <h2>Licitación activada</h2>
