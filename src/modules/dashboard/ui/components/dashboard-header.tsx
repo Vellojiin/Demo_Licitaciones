@@ -9,6 +9,8 @@ interface DashboardHeaderProps {
   onNewClient: () => void;
   onNewProduct: () => void;
   onNewTender: () => void;
+  onOpenAdmin?: () => void;
+  adminButtonLabel?: string;
 }
 
 const quickActions = [
@@ -23,6 +25,8 @@ export function DashboardHeader({
   onNewClient,
   onNewProduct,
   onNewTender,
+  onOpenAdmin,
+  adminButtonLabel = "Panel de Administración",
 }: DashboardHeaderProps) {
   const userInitial = user.name.charAt(0).toUpperCase();
 
@@ -46,11 +50,20 @@ export function DashboardHeader({
             />
           </div>
           <span className="text-sm font-semibold tracking-tight text-gray-900">
-            LicitaGov
+            Licitaciones Giovanni
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {user.role === "ADMIN" && onOpenAdmin && (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="rounded border border-blue-300 px-3 py-1.5 text-xs font-medium tracking-[0.3px] text-blue-700 transition hover:bg-blue-100"
+            >
+              {adminButtonLabel}
+            </button>
+          )}
           {quickActions.map((action) => (
             <button
               key={action.label}

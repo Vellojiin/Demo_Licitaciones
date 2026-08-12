@@ -35,3 +35,24 @@ export async function listProducts(): Promise<ProductListItem[]> {
     credentials: "include",
   });
 }
+
+export interface UpdateProductInput {
+  name?: string;
+  description?: string | null;
+  basePrice?: number;
+}
+
+export async function updateProduct(
+  id: string,
+  input: UpdateProductInput
+): Promise<ProductListItem> {
+  return ApiCall<ProductListItem>(`/api/products/${id}`, {
+    method: "PATCH",
+    credentials: "include",
+    body: {
+      name: input.name?.trim() || undefined,
+      description: input.description,
+      basePrice: input.basePrice,
+    },
+  });
+}

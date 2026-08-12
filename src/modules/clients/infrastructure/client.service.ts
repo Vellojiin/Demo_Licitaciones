@@ -35,3 +35,24 @@ export async function createClient(input: CreateClientInput): Promise<ClientList
     },
   });
 }
+
+export interface UpdateClientInput {
+  companyName?: string;
+  contactName?: string | null;
+  email?: string;
+}
+
+export async function updateClient(
+  id: string,
+  input: UpdateClientInput
+): Promise<ClientListItem> {
+  return ApiCall<ClientListItem>(`/api/clients/${id}`, {
+    method: "PATCH",
+    credentials: "include",
+    body: {
+      companyName: input.companyName?.trim() || undefined,
+      contactName: input.contactName,
+      email: input.email,
+    },
+  });
+}
