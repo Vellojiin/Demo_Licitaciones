@@ -2,10 +2,7 @@
   "crons": [
     {
       "path": "/api/jobs/tenders",
-      "schedule": "0 8 * * *",
-      "headers": {
-        "x-cron-secret": "${JOBS_CRON_SECRET}"
-      }
+      "schedule": "0 8 * * *"
     }
   ]
 }

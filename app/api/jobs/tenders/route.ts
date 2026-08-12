@@ -4,12 +4,23 @@ import { ProcessTenderJobsUseCase } from "@/src/modules/jobs/application/use-cas
 import { PrismaTenderRepository } from "@/src/modules/tenders/infrastructure/repos/prisma-tender.repository";
 
 function authorizeCron(request: Request): boolean {
-    const expectedSecret = process.env.JOBS_CRON_SECRET;
+    const expectedSecret = process.env.CRON_SECRET || process.env.JOBS_CRON_SECRET;
     if (!expectedSecret) {
         return false;
     }
 
-    return request.headers.get("x-cron-secret") === expectedSecret;
+    const authHeader = request.headers.get("authorization");
+    const customHeader = request.headers.get("x-cron-secret");
+
+    if (authHeader === `Bearer ${expectedSecret}`) {
+        return true;
+    }
+
+    if (customHeader === expectedSecret) {
+        return true;
+    }
+
+    return false;
 }
 
 async function runJobs(request: Request) {
