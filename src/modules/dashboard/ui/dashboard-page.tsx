@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   finishTender,
@@ -34,6 +35,7 @@ export function DashboardPage({
   initialTenders,
 }: DashboardPageProps) {
   const { logout } = useAuth();
+  const router = useRouter();
   const [tenders, setTenders] = useState<DashboardTender[]>(initialTenders);
   const [isLoading, setIsLoading] = useState(false);
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
@@ -107,6 +109,7 @@ export function DashboardPage({
         onNewClient={() => setIsClientModalOpen(true)}
         onNewProduct={() => setIsProductModalOpen(true)}
         onNewTender={() => setIsTenderModalOpen(true)}
+        onOpenAdmin={() => router.push("/admin")}
       />
 
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8">
