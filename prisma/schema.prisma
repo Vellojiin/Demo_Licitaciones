@@ -93,6 +93,7 @@ model Tender {
   deadline  DateTime
 
   proposalDocumentUrl String?
+  reminderSentAt      DateTime?
 
   clientId    String
   createdById String

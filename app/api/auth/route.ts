@@ -23,6 +23,7 @@ export async function POST(request: Request) {
         const response = NextResponse.json({
             user:{
                 id: session.userId,
+                name: session.name,
                 email: session.email,
                 role: session.role,
             },

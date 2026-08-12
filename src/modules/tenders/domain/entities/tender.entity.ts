@@ -8,11 +8,23 @@ export interface Tender {
     maxBudget: number;
     deadline: Date;
     proposalDocumentUrl: string | null;
+    reminderSentAt: Date | null;
     clientId: string;
     createdById: string;
     updatedById: string;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface TenderListItem {
+    id: string;
+    title: string;
+    status: TenderStatus;
+    maxBudget: number;
+    deadline: Date;
+    clientName: string;
+    productsAmount: number;
+    paidAmount: number;
 }
 
 export interface TenderActivationProduct {

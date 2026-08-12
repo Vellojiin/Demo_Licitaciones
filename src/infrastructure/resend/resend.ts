@@ -27,6 +27,12 @@ function formatMoney(value: number): string {
     }).format(value);
 }
 
+function buildProductsSummary(products: TenderActivationEmailData["products"]): string {
+    return products
+        .map((product) => `- ${product.name} x${product.quantity} (${formatMoney(product.unitPrice)})`)
+        .join("<br />");
+}
+
 async function downloadAttachment(url: string): Promise<{ content: Buffer; filename: string; contentType: string }> {
     const response = await fetch(url);
 
@@ -49,13 +55,11 @@ export async function sendTenderActivationEmail(data: TenderActivationEmailData)
     }
 
     const attachment = await downloadAttachment(data.tender.proposalDocumentUrl);
-    const productsText = data.products
-        .map((product) => `- ${product.name} x${product.quantity} (${formatMoney(product.unitPrice)})`)
-        .join("<br />");
+    const productsText = buildProductsSummary(data.products);
 
     await getResendClient().emails.send({
         from: getFromAddress(),
-        to: data.client.email,
+        to: "delivered@resend.dev", //data.client.email,
         subject: `Licitación activada: ${data.tender.title}`,
         html: `
             <h2>Licitación activada</h2>
@@ -73,5 +77,27 @@ export async function sendTenderActivationEmail(data: TenderActivationEmailData)
                 contentType: attachment.contentType,
             },
         ],
+    });
+}
+
+export async function sendTenderReminderEmail(data: TenderActivationEmailData): Promise<void> {
+    const productsText = buildProductsSummary(data.products);
+
+    await getResendClient().emails.send({
+        from: getFromAddress(),
+        to: data.client.email,
+        subject: `Recordatorio de licitación: ${data.tender.title}`,
+        html: `
+            <h2>Recordatorio de licitación</h2>
+            <p>Hola ${data.client.companyName},</p>
+            <p>Tu licitación sigue activa y está próxima a vencer.</p>
+            <p><strong>Título:</strong> ${data.tender.title}</p>
+            <p><strong>Fecha límite:</strong> ${data.tender.deadline.toLocaleString("es-CO")}</p>
+            <p><strong>Presupuesto máximo:</strong> ${formatMoney(data.tender.maxBudget)}</p>
+            <p><strong>Documento de propuesta:</strong> ${
+                data.tender.proposalDocumentUrl || "No disponible"
+            }</p>
+            <p><strong>Productos:</strong><br />${productsText || "Sin productos registrados"}</p>
+        `,
     });
 }

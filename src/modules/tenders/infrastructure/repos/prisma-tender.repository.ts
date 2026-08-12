@@ -1,7 +1,8 @@
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/src/infrastructure/prisma/prisma";
-import { Tender, TenderStatus, TenderActivationEmailData } from "@/src/modules/tenders/domain/entities/tender.entity";
+import { Tender, TenderStatus, TenderActivationEmailData, TenderListItem } from "@/src/modules/tenders/domain/entities/tender.entity";
+import { TenderDetail, TenderHistoryItem } from "@/src/modules/tenders/domain/entities/tender-detail.entity";
 import { TenderProduct } from "@/src/modules/tenders/domain/entities/tender-product.entity";
 import { Payment } from "@/src/modules/tenders/domain/entities/payment.entity";
 import { TenderRepository } from "@/src/modules/tenders/domain/repos/tender.repository";
@@ -80,16 +81,33 @@ export class PrismaTenderRepository implements TenderRepository {
         }
     }
 
-    async findAll(): Promise<Tender[]> {
+    async findAll(): Promise<TenderListItem[]> {
         const tenders = await prisma.tender.findMany({
             orderBy: {
                 createdAt: "desc",
             },
+            include: {
+                client: true,
+                products: true,
+                payments: true,
+            },
         });
 
         return tenders.map(tender => ({
-            ...tender,
+            id: tender.id,
+            title: tender.title,
+            status: tender.status,
             maxBudget: Number(tender.maxBudget),
+            deadline: tender.deadline,
+            clientName: tender.client.companyName,
+            productsAmount: tender.products.reduce(
+                (total, product) => total + Number(product.unitPrice) * product.quantity,
+                0
+            ),
+            paidAmount: tender.payments.reduce(
+                (total, payment) => total + Number(payment.amount),
+                0
+            ),
         }));
     }
 
@@ -106,6 +124,132 @@ export class PrismaTenderRepository implements TenderRepository {
             ...tender,
             maxBudget: Number(tender.maxBudget),
         };
+    }
+
+    async findDetailById(id: string): Promise<TenderDetail | null> {
+        const tender = await prisma.tender.findUnique({
+            where: { id },
+            include: {
+                client: true,
+                products: {
+                    include: {
+                        product: true,
+                    },
+                },
+                payments: {
+                    include: {
+                        createdBy: true,
+                    },
+                    orderBy: {
+                        paidAt: "desc",
+                    },
+                },
+                transitionHistory: {
+                    include: {
+                        user: true,
+                    },
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                },
+            },
+        });
+
+        if (!tender) {
+            return null;
+        }
+
+        const productsAmountDecimal = tender.products.reduce(
+            (acc, item) => acc.plus(item.unitPrice.mul(item.quantity)),
+            new Prisma.Decimal(0)
+        );
+
+        const paidAmountDecimal = tender.payments.reduce(
+            (acc, item) => acc.plus(item.amount),
+            new Prisma.Decimal(0)
+        );
+
+        return {
+            tender: {
+                id: tender.id,
+                title: tender.title,
+                description: tender.description,
+                status: tender.status,
+                maxBudget: Number(tender.maxBudget),
+                deadline: tender.deadline,
+                proposalDocumentUrl: tender.proposalDocumentUrl,
+                reminderSentAt: tender.reminderSentAt,
+                clientId: tender.clientId,
+                createdById: tender.createdById,
+                updatedById: tender.updatedById,
+                createdAt: tender.createdAt,
+                updatedAt: tender.updatedAt,
+            },
+            client: {
+                id: tender.client.id,
+                companyName: tender.client.companyName,
+                contactName: tender.client.contactName,
+                email: tender.client.email,
+            },
+            products: tender.products.map((item) => ({
+                id: item.id,
+                productId: item.productId,
+                productName: item.product.name,
+                quantity: item.quantity,
+                unitPrice: Number(item.unitPrice),
+                lineTotal: Number(item.unitPrice.mul(item.quantity)),
+            })),
+            payments: tender.payments.map((item) => ({
+                id: item.id,
+                amount: Number(item.amount),
+                paidAt: item.paidAt,
+                observation: item.observation,
+                createdById: item.createdById,
+                createdByName: item.createdBy.name,
+            })),
+            history: tender.transitionHistory.map((item) => ({
+                id: item.id,
+                previousStatus: item.previousStatus,
+                newStatus: item.newStatus,
+                createdAt: item.createdAt,
+                userId: item.userId,
+                userName: item.user.name,
+            })),
+            totals: {
+                productsAmount: Number(productsAmountDecimal),
+                paidAmount: Number(paidAmountDecimal),
+                pendingBalance: Number(productsAmountDecimal.minus(paidAmountDecimal)),
+            },
+        };
+    }
+
+    async findHistoryByTenderId(tenderId: string): Promise<TenderHistoryItem[]> {
+        const tender = await prisma.tender.findUnique({
+            where: { id: tenderId },
+            include: {
+                transitionHistory: {
+                    include: {
+                        user: true,
+                    },
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                },
+            },
+        });
+
+        if (!tender) {
+            throw new Error("TENDER_NOT_FOUND");
+        }
+
+        return tender.transitionHistory.map((item) => ({
+            id: item.id,
+            previousStatus: item.previousStatus,
+            newStatus: item.newStatus,
+            createdAt: item.createdAt,
+            userId: item.userId,
+            userName: item.user.name,
+        }));
     }
 
     async findActivationEmailData(tenderId: string): Promise<TenderActivationEmailData | null> {
@@ -134,6 +278,7 @@ export class PrismaTenderRepository implements TenderRepository {
                 maxBudget: Number(tender.maxBudget),
                 deadline: tender.deadline,
                 proposalDocumentUrl: tender.proposalDocumentUrl,
+                reminderSentAt: tender.reminderSentAt,
                 clientId: tender.clientId,
                 createdById: tender.createdById,
                 updatedById: tender.updatedById,
@@ -150,6 +295,51 @@ export class PrismaTenderRepository implements TenderRepository {
                 unitPrice: Number(item.unitPrice),
             })),
         };
+    }
+
+    async findOverdueActiveTenderIds(referenceDate: Date): Promise<string[]> {
+        const tenders = await prisma.tender.findMany({
+            where: {
+                status: "ACTIVA",
+                deadline: {
+                    lt: referenceDate,
+                },
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        return tenders.map((tender) => tender.id);
+    }
+
+    async findUpcomingReminderTenderIds(referenceDate: Date, reminderWindowHours: number): Promise<string[]> {
+        const reminderDeadline = new Date(referenceDate.getTime() + reminderWindowHours * 60 * 60 * 1000);
+        const tenders = await prisma.tender.findMany({
+            where: {
+                status: "ACTIVA",
+                deadline: {
+                    gte: referenceDate,
+                    lt: reminderDeadline,
+                },
+                reminderSentAt: null,
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        return tenders.map((tender) => tender.id);
+    }
+
+    async markReminderSent(tenderId: string, reminderSentAt: Date, userId: string): Promise<void> {
+        await prisma.tender.update({
+            where: { id: tenderId },
+            data: {
+                reminderSentAt,
+                updatedById: userId,
+            },
+        });
     }
 
     async addProduct(
