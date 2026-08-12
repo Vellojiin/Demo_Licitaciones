@@ -128,12 +128,6 @@ function renderActions({
           disabled={isPending}
           className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100"
         />
-        <ActionButton
-          label="Agregar Propuesta"
-          onClick={() => onAddProposal(tender)}
-          disabled={isPending}
-          className="border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-100"
-        />
       </div>
     );
   }
