@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/src/infrastructure/prisma/prisma";
-import { Tender, TenderStatus, TenderActivationEmailData } from "@/src/modules/tenders/domain/entities/tender.entity";
+import { Tender, TenderStatus, TenderActivationEmailData, TenderListItem } from "@/src/modules/tenders/domain/entities/tender.entity";
 import { TenderDetail, TenderHistoryItem } from "@/src/modules/tenders/domain/entities/tender-detail.entity";
 import { TenderProduct } from "@/src/modules/tenders/domain/entities/tender-product.entity";
 import { Payment } from "@/src/modules/tenders/domain/entities/payment.entity";
@@ -81,16 +81,33 @@ export class PrismaTenderRepository implements TenderRepository {
         }
     }
 
-    async findAll(): Promise<Tender[]> {
+    async findAll(): Promise<TenderListItem[]> {
         const tenders = await prisma.tender.findMany({
             orderBy: {
                 createdAt: "desc",
             },
+            include: {
+                client: true,
+                products: true,
+                payments: true,
+            },
         });
 
         return tenders.map(tender => ({
-            ...tender,
+            id: tender.id,
+            title: tender.title,
+            status: tender.status,
             maxBudget: Number(tender.maxBudget),
+            deadline: tender.deadline,
+            clientName: tender.client.companyName,
+            productsAmount: tender.products.reduce(
+                (total, product) => total + Number(product.unitPrice) * product.quantity,
+                0
+            ),
+            paidAmount: tender.payments.reduce(
+                (total, payment) => total + Number(payment.amount),
+                0
+            ),
         }));
     }
 

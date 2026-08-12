@@ -16,6 +16,17 @@ export interface Tender {
     updatedAt: Date;
 }
 
+export interface TenderListItem {
+    id: string;
+    title: string;
+    status: TenderStatus;
+    maxBudget: number;
+    deadline: Date;
+    clientName: string;
+    productsAmount: number;
+    paidAmount: number;
+}
+
 export interface TenderActivationProduct {
     name: string;
     quantity: number;

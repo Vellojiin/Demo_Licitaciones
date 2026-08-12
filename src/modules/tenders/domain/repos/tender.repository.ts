@@ -1,11 +1,11 @@
-import { Tender, TenderActivationEmailData } from "@/src/modules/tenders/domain/entities/tender.entity";
+import { Tender, TenderActivationEmailData, TenderListItem } from "@/src/modules/tenders/domain/entities/tender.entity";
 import { Payment } from "@/src/modules/tenders/domain/entities/payment.entity";
 import { TenderProduct } from "@/src/modules/tenders/domain/entities/tender-product.entity";
 import { TenderDetail, TenderHistoryItem } from "@/src/modules/tenders/domain/entities/tender-detail.entity";
 
 export interface TenderRepository {
     create(tender: Tender): Promise<Tender>;
-    findAll(): Promise<Tender[]>;
+    findAll(): Promise<TenderListItem[]>;
     findById(id: string): Promise<Tender | null>;
     findDetailById(id: string): Promise<TenderDetail | null>;
     findHistoryByTenderId(tenderId: string): Promise<TenderHistoryItem[]>;

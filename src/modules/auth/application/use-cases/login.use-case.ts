@@ -12,6 +12,7 @@ interface LoginInput {
 
 export interface AuthSessionPayload {
     userId: string;
+    name: string;
     role: UserRole;
     email: string;
 }
@@ -35,6 +36,7 @@ export class LoginUseCase {
 
         return {
             userId: user.id,
+            name: user.name,
             role: user.role,
             email: user.email,
         };
