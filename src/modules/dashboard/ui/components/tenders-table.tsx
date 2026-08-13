@@ -194,8 +194,8 @@ export function TendersTable({
                       {tender.title}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {formatCurrency(tender.productsAmount)} /{" "}
-                      {formatCurrency(tender.maxBudget)}
+                      {"Costo total "}{formatCurrency(tender.productsAmount)} /{" "}
+                      {"Presupuesto maximo "}{formatCurrency(tender.maxBudget)}
                     </p>
                   </div>
                 </td>

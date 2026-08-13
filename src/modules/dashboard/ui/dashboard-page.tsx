@@ -37,6 +37,7 @@ export function DashboardPage({
   const { logout } = useAuth();
   const router = useRouter();
   const [tenders, setTenders] = useState<DashboardTender[]>(initialTenders);
+  const [activeTab, setActiveTab] = useState<"activas" | "finalizadas">("activas");
   const [isLoading, setIsLoading] = useState(false);
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
@@ -65,6 +66,22 @@ export function DashboardPage({
 
   const activeTendersCount = useMemo(
     () => tenders.filter((tender) => tender.status === "ACTIVA").length,
+    [tenders]
+  );
+
+  const activeTenders = useMemo(
+    () =>
+      tenders.filter((tender) =>
+        ["BORRADOR", "ACTIVA", "FINALIZADA", "POR_COBRAR"].includes(tender.status)
+      ),
+    [tenders]
+  );
+
+  const closedTenders = useMemo(
+    () =>
+      tenders.filter((tender) =>
+        ["PERDIDA", "COBRADA"].includes(tender.status)
+      ),
     [tenders]
   );
 
@@ -116,12 +133,51 @@ export function DashboardPage({
         <section className="space-y-2">
           <h1 className="text-4xl font-light tracking-tight text-gray-900">
             <span className="font-serif">Licitaciones </span>
-            <span className="font-serif italic">activas</span>
+            <span className="font-serif italic">
+              {activeTab === "activas" ? "activas" : "finalizadas"}
+            </span>
           </h1>
           <p className="text-sm text-gray-600">
-            {activeTendersCount} activas de {tenders.length} en total
+            {activeTab === "activas"
+              ? `${activeTendersCount} activas de ${tenders.length} en total`
+              : `${closedTenders.length} finalizadas de ${tenders.length} en total`}
           </p>
         </section>
+
+        <nav className="flex flex-wrap items-center gap-1 border-b border-gray-200">
+          {[
+            { id: "activas" as const, label: "Activas" },
+            { id: "finalizadas" as const, label: "Finalizadas" },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`-mb-px flex items-center gap-2 rounded-t border-b-2 px-4 py-2.5 text-sm font-medium transition ${
+                  isActive
+                    ? "border-blue-600 text-blue-700"
+                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800"
+                }`}
+              >
+                {tab.label}
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                    isActive
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {tab.id === "activas"
+                    ? activeTenders.length
+                    : closedTenders.length}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
 
         {isLoading ? (
           <section className="flex min-h-80 items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -130,7 +186,28 @@ export function DashboardPage({
               <span>Cargando dashboard...</span>
             </div>
           </section>
-        ) : tenders.length === 0 ? (
+        ) : activeTab === "finalizadas" ? (
+          closedTenders.length === 0 ? (
+            <section className="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm">
+              <h2 className="text-lg font-medium text-gray-900">
+                Aun no hay licitaciones perdidas o cobradas
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                La licitaciones que se ganen o pierdan apareceran aqui.
+              </p>
+            </section>
+          ) : (
+            <TendersTable
+              tenders={closedTenders}
+              pendingActionId={pendingActionId}
+              onFinishTender={handleToCollectTender}
+              onLoseTender={handleLoseTender}
+              onRegisterPayment={handleRegisterPayment}
+              onAddProposal={setProposalTender}
+              onOpenDetail={setSelectedTender}
+            />
+          )
+        ) : activeTenders.length === 0 ? (
           <section className="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-16 text-center shadow-sm">
             <h2 className="text-lg font-medium text-gray-900">
               Aun no hay licitaciones registradas
@@ -143,7 +220,7 @@ export function DashboardPage({
           </section>
         ) : (
           <TendersTable
-            tenders={tenders}
+            tenders={activeTenders}
             pendingActionId={pendingActionId}
             onFinishTender={handleToCollectTender}
             onLoseTender={handleLoseTender}
