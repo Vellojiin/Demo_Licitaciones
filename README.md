@@ -186,48 +186,48 @@ prisma/
 
 ### Autenticación
 
-- `POST /api/auth`
+- `POST /api/auth` Login
 
 ### Usuarios (solo admin)
 
-- `GET /api/users`
-- `POST /api/users`
-- `GET /api/users/[id]`
-- `PATCH /api/users/[id]`
-- `DELETE /api/users/[id]`
+- `GET /api/users` Listar todos los usuarios
+- `POST /api/users` Crear usuario
+- `GET /api/users/[id]` Listar usuario por ID
+- `PATCH /api/users/[id]` Editar usuario
+- `DELETE /api/users/[id]` Eliminar Usuario
 
 ### Clientes
 
-- `GET /api/clients`
-- `POST /api/clients`
-- `GET /api/clients/[id]`
-- `PATCH /api/clients/[id]`
-- `DELETE /api/clients/[id]`
+- `GET /api/clients` Listar todos los clientes
+- `POST /api/clients` Crear cliente
+- `GET /api/clients/[id]` Listar cliente por ID
+- `PATCH /api/clients/[id]` Editar cliente
+- `DELETE /api/clients/[id]` Eliminar Cliente
 
 ### Productos
 
-- `GET /api/products`
-- `POST /api/products`
-- `GET /api/products/[id]`
-- `PATCH /api/products/[id]`
-- `DELETE /api/products/[id]`
+- `GET /api/products` Listar todos los productos
+- `POST /api/products` crear producto
+- `GET /api/products/[id]` Listar producto por ID
+- `PATCH /api/products/[id]` Editar producto
+- `DELETE /api/products/[id]` Eliminar producto
 
 ### Licitaciones
 
-- `GET /api/tenders`
-- `POST /api/tenders`
-- `GET /api/tenders/[id]`
+- `GET /api/tenders` Listar todas las licitaciones
+- `POST /api/tenders` Crear licitacion
+- `GET /api/tenders/[id]` Listar licitacion por ID
 - `PATCH /api/tenders/[id]` → activa una licitación
-- `GET /api/tenders/[id]/history`
-- `PATCH /api/tenders/[id]/finish`
-- `PATCH /api/tenders/[id]/to-collect`
-- `PATCH /api/tenders/[id]/lose`
-- `GET /api/tenders/[id]/products`
-- `POST /api/tenders/[id]/products`
-- `DELETE /api/tenders/[id]/products?productId=...`
-- `POST /api/tenders/[id]/proposal`
-- `GET /api/tenders/[id]/payments`
-- `POST /api/tenders/[id]/payments`
+- `GET /api/tenders/[id]/history` Listar historial de una licitacion
+- `PATCH /api/tenders/[id]/finish` Cambiar estado a FINALIZADA
+- `PATCH /api/tenders/[id]/to-collect` Cambiar estado a POR_COBRAR
+- `PATCH /api/tenders/[id]/lose` Cambiar estado a PERDIDA
+- `GET /api/tenders/[id]/products` Listar productos de una licitacion
+- `POST /api/tenders/[id]/products` Crear productos en una licitacion
+- `DELETE /api/tenders/[id]/products?productId=...` Eliminar producto de una licitacion
+- `POST /api/tenders/[id]/proposal` Agregar propuesta a licitacion
+- `GET /api/tenders/[id]/payments` Listar pagos de una licitacion
+- `POST /api/tenders/[id]/payments` Agregar pago a una licitacion
 
 ### Jobs
 

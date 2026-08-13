@@ -101,9 +101,9 @@ export function AddProposalModal({ tender, onClose, onUpdated }: AddProposalModa
   const selectedProduct = catalog.find((product) => product.id === newProductId);
   const quantity = Number(newQuantity);
   const unitPrice = Number(newUnitPrice);
-  const lineTotal = Number.isFinite(quantity) && Number.isFinite(unitPrice)
-    ? quantity * unitPrice
-    : 0;
+  const isQuantityValid = Number.isFinite(quantity) && quantity > 0;
+  const isUnitPriceValid = Number.isFinite(unitPrice) && unitPrice > 0;
+  const lineTotal = isQuantityValid && isUnitPriceValid ? quantity * unitPrice : 0;
   const wouldExceedBudget = productsTotal + lineTotal > maxBudget;
 
   const handleSelectProduct = (productId: string) => {
@@ -364,7 +364,9 @@ export function AddProposalModal({ tender, onClose, onUpdated }: AddProposalModa
                     min="1"
                     step="1"
                     value={newQuantity}
-                    onChange={(event) => setNewQuantity(event.target.value)}
+                    onChange={(event) =>
+                      setNewQuantity(event.target.value.startsWith("-") ? "" : event.target.value)
+                    }
                     disabled={isBusy}
                     className={`${inputClassName} mt-2`}
                   />
@@ -380,7 +382,9 @@ export function AddProposalModal({ tender, onClose, onUpdated }: AddProposalModa
                     min="0"
                     step="0.01"
                     value={newUnitPrice}
-                    onChange={(event) => setNewUnitPrice(event.target.value)}
+                    onChange={(event) =>
+                      setNewUnitPrice(event.target.value.startsWith("-") ? "" : event.target.value)
+                    }
                     disabled={isBusy}
                     placeholder={selectedProduct ? selectedProduct.basePrice.toString() : ""}
                     className={`${inputClassName} mt-2`}
@@ -391,7 +395,13 @@ export function AddProposalModal({ tender, onClose, onUpdated }: AddProposalModa
                   <button
                     type="button"
                     onClick={handleAddProduct}
-                    disabled={isBusy || catalog.length === 0 || !selectedProduct}
+                    disabled={
+                      isBusy ||
+                      catalog.length === 0 ||
+                      !selectedProduct ||
+                      !isQuantityValid ||
+                      !isUnitPriceValid
+                    }
                     className="inline-flex items-center gap-1.5 rounded bg-yellow-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-yellow-700 disabled:cursor-not-allowed disabled:bg-blue-400"
                   >
                     {isAddingProduct ? (
